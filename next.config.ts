@@ -19,8 +19,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  output: 'export',
+  basePath: '/TafelKampioen',
   distDir: 'docs',
+  output: 'export',
   transpilePackages: ['motion'],
   webpack: (config, { dev }) => {
     // HMR is disabled in AI Studio via DISABLE_HMR env var.
