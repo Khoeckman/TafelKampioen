@@ -20,6 +20,7 @@ const nextConfig: NextConfig = {
     ],
   },
   basePath: '/TafelKampioen',
+  assetPrefix: '/TafelKampioen/',
   distDir: 'docs',
   output: 'export',
   transpilePackages: ['motion'],
