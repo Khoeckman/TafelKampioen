@@ -17,7 +17,6 @@ interface AnswerRecord extends Exercise {
 }
 
 const TIME_LIMIT = parseInt(process.env.NEXT_PUBLIC_TIME_LIMIT || '40', 10)
-const MAX_EXERCISES = parseInt(process.env.NEXT_PUBLIC_MAX_EXERCISES || '100', 10)
 const MIN_CORRECT = parseInt(process.env.NEXT_PUBLIC_MIN_CORRECT || '10', 10)
 const MIN_PERCENTAGE = parseInt(process.env.NEXT_PUBLIC_MIN_PERCENTAGE || '80', 10)
 
@@ -91,12 +90,8 @@ export default function MaaltafelsApp() {
     setStats(newStats)
     setInputValue('')
 
-    if (newStats.total >= MAX_EXERCISES) {
-      setGameState('finished')
-    } else {
-      setCurrentExercise(generateExercise())
-      setTimeout(() => inputRef.current?.focus(), 0)
-    }
+    setCurrentExercise(generateExercise())
+    setTimeout(() => inputRef.current?.focus(), 0)
   }
 
   const progressPercentage = (timeLeft / TIME_LIMIT) * 100
@@ -132,7 +127,7 @@ export default function MaaltafelsApp() {
                 <h2 className="text-3xl font-bold text-center mb-4">Klaar om te rekenen?</h2>
                 <p className="text-slate-500 text-center mb-8 max-w-sm">
                   Je hebt {TIME_LIMIT} seconden om zoveel mogelijk oefeningen op te lossen. Probeer er minstens {MIN_CORRECT} juist te
-                  hebben met een score van {MIN_PERCENTAGE}%!
+                  hebben en niet meer dan {100 - MIN_PERCENTAGE}% fout!
                 </p>
 
                 <button
