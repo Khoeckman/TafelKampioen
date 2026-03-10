@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  output: 'standalone',
+  output: 'export',
   distDir: 'docs',
   transpilePackages: ['motion'],
   webpack: (config, { dev }) => {

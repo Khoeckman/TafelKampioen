@@ -12,4 +12,4 @@
 1. Build the app:
    `npm run build`
 2. Preview the app:
-   `npm run preview`
+   `npx serve docs`
