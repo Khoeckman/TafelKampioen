@@ -107,7 +107,7 @@ export default function MaaltafelsApp() {
     <div className="min-h-screen bg-sky-50 text-slate-800 font-sans flex flex-col items-center py-12 px-4">
       <div className="w-full max-w-2xl">
         <header className="text-center mb-10">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-sky-600 tracking-tight mb-2">Rekenkampioen</h1>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-sky-600 tracking-tight mb-2">Tafelkampioen</h1>
           <p className="text-lg text-slate-500 font-medium">Oefen de maaltafels van 2 tot 10!</p>
         </header>
 
@@ -124,7 +124,7 @@ export default function MaaltafelsApp() {
                 <div className="flex items-center justify-center mb-8 text-sky-500">
                   <Play className="w-16 h-16" />
                 </div>
-                <h2 className="text-3xl font-bold text-center mb-4">Klaar om te rekenen?</h2>
+                <h2 className="text-3xl font-bold text-center mb-4">Klaar om je tafels te oefenen?</h2>
                 <p className="text-slate-500 text-center mb-8 max-w-sm">
                   Je hebt {TIME_LIMIT} seconden om zoveel mogelijk oefeningen op te lossen. Probeer er minstens {MIN_CORRECT} juist te
                   hebben en niet meer dan {100 - MIN_PERCENTAGE}% fout!
