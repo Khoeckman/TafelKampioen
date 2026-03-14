@@ -1,12 +1,11 @@
-import type { NextConfig } from 'next'
-
 const isProd = process.env.NODE_ENV === 'production'
 
-const nextConfig: NextConfig = {
-  reactStrictMode: true,
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   output: 'export',
-  basePath: isProd ? '/TafelKampioen' : '',
   distDir: 'docs',
+  basePath: isProd ? '/TafelKampioen' : '',
+  assetPrefix: '/TafelKampioen/',
 }
 
 export default nextConfig
