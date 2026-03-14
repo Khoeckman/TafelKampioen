@@ -3,9 +3,9 @@ const isProd = process.env.NODE_ENV === 'production'
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
-  distDir: 'docs',
+  distDir: isProd ? 'docs' : 'out',
   basePath: isProd ? '/TafelKampioen' : '',
-  assetPrefix: '/TafelKampioen/',
+  assetPrefix: isProd ? '/TafelKampioen' : '',
 }
 
 export default nextConfig
