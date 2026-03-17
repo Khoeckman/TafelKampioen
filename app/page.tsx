@@ -62,7 +62,7 @@ export default function MaaltafelsApp() {
 
   const startGame = () => {
     setStats({ correct: 0, total: 0, history: [] })
-    setTimeLeft(TIME_PER_EXERCISE)
+    setTimeLeft(TIME_PER_EXERCISE + 0.5)
     seenExercises.current.clear()
     setCurrentExercise(generateExercise())
     setInputValue('')
