@@ -1,5 +1,5 @@
-import type { Metadata } from 'next'
-import './globals.css' // Global styles
+// @ts-expect-error It's there!
+import './globals.css'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

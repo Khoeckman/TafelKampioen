@@ -103,7 +103,6 @@ export default function MaaltafelsApp() {
         inputRef.current?.focus()
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLeft, gameState])
 
   useEffect(() => {
@@ -120,7 +119,7 @@ export default function MaaltafelsApp() {
     const isCorrect = parsedAnswer === currentExercise.a * currentExercise.b
 
     const newStats = {
-      correct: stats.correct + (isCorrect ? 1 : 0),
+      correct: stats.correct + +isCorrect,
       total: stats.total + 1,
       history: [...stats.history, { ...currentExercise, userAnswer: parsedAnswer, isCorrect, isTimeout: false }],
     }
@@ -231,7 +230,14 @@ export default function MaaltafelsApp() {
                       ref={inputRef}
                       type="number"
                       value={inputValue}
-                      onChange={e => setInputValue(e.target.value)}
+                      onChange={e => {
+                        const value = e.target.value
+                        setInputValue(value)
+
+                        const numeric = Number(value)
+
+                        if (numeric === currentExercise.a * currentExercise.b) setTimeout(() => handleInputSubmit(e), 100)
+                      }}
                       className="w-auto min-w-[2em] max-w-[3em] min-h-[1.8em] text-center text-5xl md:text-6xl font-black text-sky-600 px-1 py-1 rounded-3xl border-4 border-slate-200 focus:border-sky-400 focus:ring-8 focus:ring-sky-100 transition-all outline-none"
                       autoFocus
                       onBlur={() => {
