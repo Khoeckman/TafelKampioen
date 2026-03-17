@@ -36,6 +36,7 @@ export default function MaaltafelsApp() {
   const [timeLeft, setTimeLeft] = useState<number>(TIME_PER_EXERCISE)
   const inputRef = useRef<HTMLInputElement>(null)
   const seenExercises = useRef<Set<string>>(new Set())
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const generateExercise = (): Exercise => {
     let a = 2
@@ -69,59 +70,14 @@ export default function MaaltafelsApp() {
     setGameState('playing')
   }
 
-  const stateRef = useRef({ currentExercise, stats })
-  useEffect(() => {
-    stateRef.current = { currentExercise, stats }
-  }, [currentExercise, stats])
-
-  useEffect(() => {
-    let timer: NodeJS.Timeout
-    if (gameState === 'playing' && timeLeft > 0) {
-      timer = setInterval(() => {
-        setTimeLeft(prev => prev - 0.1)
-      }, 100)
-    }
-    return () => clearInterval(timer)
-  }, [gameState, timeLeft])
-
-  useEffect(() => {
-    if (gameState === 'playing' && timeLeft <= 0) {
-      const { currentExercise: ex, stats: st } = stateRef.current
-      const newStats = {
-        correct: st.correct,
-        total: st.total + 1,
-        history: [...st.history, { ...ex, userAnswer: null, isCorrect: false, isTimeout: true }],
-      }
-      setStats(newStats)
-      setInputValue('')
-
-      if (newStats.total >= MAX_EXERCISES) {
-        setGameState('finished')
-      } else {
-        setCurrentExercise(generateExercise())
-        setTimeLeft(TIME_PER_EXERCISE)
-        inputRef.current?.focus()
-      }
-    }
-  }, [timeLeft, gameState])
-
-  useEffect(() => {
-    if (gameState === 'playing' && inputRef.current) {
-      inputRef.current.focus()
-    }
-  }, [gameState, currentExercise])
-
-  const handleInputSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!inputValue.trim()) return
-
-    const parsedAnswer = parseInt(inputValue, 10)
-    const isCorrect = parsedAnswer === currentExercise.a * currentExercise.b
+  const scoreCurrentAnswer = (answer: number, isTimeout = false) => {
+    const { currentExercise, stats } = stateRef.current
+    const isCorrect = answer === currentExercise.a * currentExercise.b
 
     const newStats = {
       correct: stats.correct + +isCorrect,
       total: stats.total + 1,
-      history: [...stats.history, { ...currentExercise, userAnswer: parsedAnswer, isCorrect, isTimeout: false }],
+      history: [...stats.history, { ...currentExercise, userAnswer: answer, isCorrect, isTimeout: isTimeout && !isCorrect }],
     }
 
     setStats(newStats)
@@ -134,6 +90,41 @@ export default function MaaltafelsApp() {
       setTimeLeft(TIME_PER_EXERCISE)
       inputRef.current?.focus()
     }
+  }
+
+  const stateRef = useRef({ currentExercise, stats })
+  useEffect(() => {
+    stateRef.current = { currentExercise, stats }
+  }, [currentExercise, stats])
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout
+    if (gameState !== 'playing' || timeLeft <= 0) return
+
+    timer = setInterval(() => {
+      setTimeLeft(prev => prev - 0.05)
+    }, 50)
+
+    return () => clearInterval(timer)
+  }, [gameState, timeLeft])
+
+  useEffect(() => {
+    if (gameState !== 'playing' || timeLeft > 0) return
+
+    const answer = parseInt(inputValue)
+    scoreCurrentAnswer(answer, true)
+  }, [timeLeft, gameState])
+
+  useEffect(() => {
+    if (gameState === 'playing' && inputRef.current) inputRef.current.focus()
+  }, [gameState, currentExercise])
+
+  const handleInputSubmit = (e?: React.SubmitEvent<HTMLFormElement>) => {
+    e?.preventDefault()
+    if (!inputValue.trim()) return
+
+    const answer = parseInt(inputValue)
+    scoreCurrentAnswer(answer, false)
   }
 
   const progressPercentage = (timeLeft / TIME_PER_EXERCISE) * 100
@@ -230,14 +221,7 @@ export default function MaaltafelsApp() {
                       ref={inputRef}
                       type="number"
                       value={inputValue}
-                      onChange={e => {
-                        const value = e.target.value
-                        setInputValue(value)
-
-                        const numeric = Number(value)
-
-                        if (numeric === currentExercise.a * currentExercise.b) setTimeout(() => handleInputSubmit(e), 100)
-                      }}
+                      onChange={e => setInputValue(e.target.value)}
                       className="w-auto min-w-[2em] max-w-[3em] min-h-[1.8em] text-center text-5xl md:text-6xl font-black text-sky-600 px-1 py-1 rounded-3xl border-4 border-slate-200 focus:border-sky-400 focus:ring-8 focus:ring-sky-100 transition-all outline-none"
                       autoFocus
                       onBlur={() => {
