@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { CheckCircle, XCircle, Play, RotateCcw, Hash, Check, X, Star, Clock } from 'lucide-react'
+import { CheckCircle, XCircle, Play, RotateCcw, Hash, Check, X, Star, Clock, Home } from 'lucide-react'
 
 type GameState = 'setup' | 'playing' | 'finished'
 
@@ -17,9 +17,9 @@ interface AnswerRecord extends Exercise {
   isTimeout: boolean
 }
 
-const TIME_PER_EXERCISE = parseInt(process.env.NEXT_PUBLIC_TIME_PER_EXERCISE || '4', 10)
-const MAX_EXERCISES = parseInt(process.env.NEXT_PUBLIC_MAX_EXERCISES || '10', 10)
-const MIN_CORRECT = Math.min(parseInt(process.env.NEXT_PUBLIC_MIN_CORRECT || '9', 10), MAX_EXERCISES)
+const TIME_PER_EXERCISE = 5
+const MAX_EXERCISES = 10
+const MIN_CORRECT = Math.min(9, MAX_EXERCISES)
 
 export default function MaaltafelsApp() {
   const [gameState, setGameState] = useState<GameState>('setup')
@@ -41,12 +41,18 @@ export default function MaaltafelsApp() {
     let a = 2
     let b = 2
     let attempts = 0
+    let tooEasy = false
+    let hasTen = false
 
     do {
       a = Math.floor(Math.random() * 9) + 2
       b = Math.floor(Math.random() * 9) + 2
       attempts++
-    } while (seenExercises.current.has(`${a}x${b}`) && attempts < 20)
+
+      hasTen = a === 10 || b === 10
+      tooEasy = (a === 2 && b < 6) || (b === 2 && a < 6) || (seenExercises.current.has('10') && hasTen)
+      if (hasTen) seenExercises.current.add('10')
+    } while (tooEasy || (seenExercises.current.has(`${a}x${b}`) && attempts < 20))
 
     seenExercises.current.add(`${a}x${b}`)
     seenExercises.current.add(`${b}x${a}`)
@@ -94,7 +100,7 @@ export default function MaaltafelsApp() {
       } else {
         setCurrentExercise(generateExercise())
         setTimeLeft(TIME_PER_EXERCISE)
-        setTimeout(() => inputRef.current?.focus(), 0)
+        inputRef.current?.focus()
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -127,7 +133,7 @@ export default function MaaltafelsApp() {
     } else {
       setCurrentExercise(generateExercise())
       setTimeLeft(TIME_PER_EXERCISE)
-      setTimeout(() => inputRef.current?.focus(), 0)
+      inputRef.current?.focus()
     }
   }
 
@@ -202,7 +208,7 @@ export default function MaaltafelsApp() {
                   </div>
                 </div>
 
-                <div className="w-full h-8 bg-slate-200 rounded-full mb-12 overflow-hidden relative flex items-center justify-center shadow-inner">
+                <div className="w-full h-8 bg-slate-200 rounded-full mb-8 overflow-hidden relative flex items-center justify-center shadow-inner">
                   <motion.div
                     className={`absolute left-0 top-0 h-full rounded-full ${timeLeft < 1 ? 'bg-rose-400' : 'bg-sky-400'}`}
                     initial={{ width: '100%' }}
@@ -212,28 +218,30 @@ export default function MaaltafelsApp() {
                   <span className="relative z-10 font-black text-slate-800 drop-shadow-sm">{Math.abs(timeLeft).toFixed(1)}s</span>
                 </div>
 
-                <form onSubmit={handleInputSubmit} className="flex flex-col items-center w-full max-w-md">
-                  <div className="flex items-center justify-center text-6xl md:text-8xl font-black text-slate-800 mb-8 w-full">
-                    <span className="w-24 text-right">{currentExercise.a}</span>
-                    <span className="mx-4 text-sky-400 text-5xl md:text-7xl">×</span>
-                    <span className="w-24 text-left">{currentExercise.b}</span>
-                    <span className="mx-4 text-slate-300">=</span>
-                  </div>
+                <form onSubmit={handleInputSubmit} className="flex flex-col items-center w-full">
+                  <div className="flex justify-center items-center flex-row flex-wrap gap-4 text-6xl md:text-8xl font-black text-slate-800 w-full">
+                    <div className="flex items-center max-h-[1em]">
+                      <span className="text-right">{currentExercise.a}</span>
+                      <span className="mx-2 text-sky-400 text-5xl md:text-7xl">×</span>
+                      <span className="text-left">{currentExercise.b}</span>
+                      <span className="ml-4 text-slate-400">=</span>
+                    </div>
 
-                  <input
-                    ref={inputRef}
-                    type="number"
-                    value={inputValue}
-                    onChange={e => setInputValue(e.target.value)}
-                    className="w-full max-w-[200px] text-center text-5xl md:text-6xl font-black text-sky-600 px-4 py-4 rounded-3xl border-4 border-slate-200 focus:border-sky-400 focus:ring-8 focus:ring-sky-100 transition-all outline-none"
-                    autoFocus
-                    onBlur={() => {
-                      if (gameState === 'playing') {
-                        setTimeout(() => inputRef.current?.focus(), 10)
-                      }
-                    }}
-                  />
-                  <p className="mt-6 text-slate-400 font-medium">Typ je antwoord en druk op Enter</p>
+                    <input
+                      ref={inputRef}
+                      type="number"
+                      value={inputValue}
+                      onChange={e => setInputValue(e.target.value)}
+                      className="w-auto min-w-[2em] max-w-[3em] min-h-[1.8em] text-center text-5xl md:text-6xl font-black text-sky-600 px-1 py-1 rounded-3xl border-4 border-slate-200 focus:border-sky-400 focus:ring-8 focus:ring-sky-100 transition-all outline-none"
+                      autoFocus
+                      onBlur={() => {
+                        if (gameState === 'playing') {
+                          setTimeout(() => inputRef.current?.focus(), 10)
+                        }
+                      }}
+                    />
+                  </div>
+                  <p className="mt-5 text-slate-400 font-medium">Typ je antwoord en druk op Enter</p>
                 </form>
               </motion.div>
             )}
@@ -278,13 +286,14 @@ export default function MaaltafelsApp() {
                 </div>
 
                 {stats.history.length > 0 && (
-                  <div className="w-full max-w-md bg-slate-50 rounded-2xl p-6 mb-8 max-h-64 overflow-y-auto border border-slate-100 shadow-inner">
-                    <h3 className="font-bold text-slate-700 mb-4 text-center">Gemaakte oefeningen</h3>
+                  <div className="w-full max-w-md bg-slate-50 rounded-2xl p-6 mb-8 border border-slate-100 shadow-inner">
+                    <h3 className="font-bold text-slate-700 mb-4 text-center">Gemaakte oefeningen:</h3>
                     <ul className="space-y-3">
                       {stats.history.map((record, idx) => (
                         <li key={idx} className="flex gap-2 items-center text-lg font-medium bg-white p-3 rounded-xl shadow-sm">
-                          <span className="text-nowrap text-sky-600">
-                            {record.a} × {record.b} = <span className="font-bold">{record.a * record.b}</span>
+                          <span className="text-nowrap text-slate-800">
+                            {record.a} <span className="text-sky-400">×</span> {record.b} <span className="text-slate-400">=</span>{' '}
+                            <span className="font-bold">{record.a * record.b}</span>
                           </span>
                           <span
                             className={`ml-4 font-bold ${record.isTimeout ? 'text-amber-500' : record.isCorrect ? 'text-green-600' : 'text-rose-600'}`}
@@ -307,6 +316,13 @@ export default function MaaltafelsApp() {
                 )}
 
                 <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+                  <button
+                    onClick={() => setGameState('setup')}
+                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-lg py-4 px-6 rounded-2xl shadow-sm transition-transform active:scale-95 flex items-center justify-center"
+                  >
+                    <Home className="w-5 h-5 mr-2" />
+                    Startscherm
+                  </button>
                   <button
                     onClick={startGame}
                     className="flex-1 bg-sky-500 hover:bg-sky-600 text-white font-bold text-lg py-4 px-6 rounded-2xl shadow-lg shadow-sky-200 transition-transform active:scale-95 flex items-center justify-center"
