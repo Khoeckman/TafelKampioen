@@ -1,5 +1,8 @@
 # Tafel Kampioen
 
+
+Play on [https://khoeckman.github.io/TafelKampioen/](https://khoeckman.github.io/TafelKampioen/)
+
 ## Run Dev Server
 
 1. Install dependencies:
